@@ -5053,6 +5053,26 @@ static int disconnect_all_cmd(int argc, char **argv, struct command *command, st
 	return disconnect_all(desc, argc, argv);
 }
 
+static int sas_stat_cmd(int argc, char **argv, struct command *cmd, struct plugin *plugin)
+{
+	// add command test .. 
+	int err,fd;
+
+	err = open_dev(argv[1]); // device
+	if(err < 0) {
+		return err;
+	}
+	fd = err;
+	
+	err = nvme_passthru(fd, NVME_IOCTL_IO_CMD, 0x80 /*opcode*/, 0 /*flags*/, 0 /*rsvd*/,
+		0 /*nsID*/, 0 /*cdw2*/, 0 /*cdw3*/, 2621440 /*cdw10 - LBA*/,
+		0 /*cdw11*/, 0 /*cdw12*/, 0 /*cdw13*/, 0 /*cdw14*/, 0 /*cdw15*/,
+		0 /*data len*/, NULL /*data*/, 0 /*metadata len*/, NULL /*metadata*/,
+		0 /*timeout*/, NULL /*result*/);
+
+	return err;
+}
+
 void register_extension(struct plugin *plugin)
 {
 	plugin->parent = &nvme;
